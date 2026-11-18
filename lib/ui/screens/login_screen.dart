@@ -71,6 +71,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
                   return Form(
                     key: _formKey,
+                    autovalidateMode: AutovalidateMode.onUserInteraction,
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
@@ -101,9 +102,16 @@ class _LoginScreenState extends State<LoginScreen> {
                             decoration: const InputDecoration(
                               labelText: 'Имя пользователя',
                             ),
-                            validator: (v) => (v ?? '').trim().length < 3
-                                ? 'Не короче 3 символов'
-                                : null,
+                            validator: (v) {
+                              final value = (v ?? '').trim();
+                              if (value.isEmpty) {
+                                return 'Введите имя пользователя';
+                              }
+                              if (value.length < 3) {
+                                return 'Имя должно быть не короче 3 символов';
+                              }
+                              return null;
+                            },
                           ),
                           const SizedBox(height: 16),
                         ],
@@ -118,9 +126,14 @@ class _LoginScreenState extends State<LoginScreen> {
                           ),
                           validator: (v) {
                             final value = (v ?? '').trim();
-                            if (value.isEmpty) return 'Это обязательное поле';
+                            if (value.isEmpty) return 'Введите адрес почты';
+                            if (!value.contains('@')) {
+                              return 'В адресе почты должен быть символ @, '
+                                  'например name@example.com';
+                            }
                             if (!_emailRegex.hasMatch(value)) {
-                              return 'Введите корректный адрес почты';
+                              return 'После @ должен быть домен, '
+                                  'например name@example.com';
                             }
                             return null;
                           },
@@ -146,8 +159,8 @@ class _LoginScreenState extends State<LoginScreen> {
                           ),
                           validator: (v) {
                             final value = v ?? '';
-                            if (value.isEmpty) return 'Это поле обязательно';
-                            if (value.length < 8) return 'Не менее 8 символов';
+                            if (value.isEmpty) return 'Введите пароль';
+                            if (value.length < 8) return 'Пароль должен быть не короче 8 символов';
                             return null;
                           },
                         ),
@@ -160,6 +173,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                   height: 20,
                                   child: CircularProgressIndicator(
                                     strokeWidth: 2,
+                                    color: Colors.white,
                                   ),
                                 )
                               : Text(_isLogin ? 'Войти' : 'Зарегистрироваться'),

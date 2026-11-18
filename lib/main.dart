@@ -1,11 +1,14 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 
 import 'bloc/auth/auth_bloc.dart';
 import 'bloc/auth/auth_event.dart';
 import 'bloc/auth/auth_state.dart';
+import 'bloc/requests/requests_bloc.dart';
 import 'data/auth_repository.dart';
+import 'data/requests_repository.dart';
 import 'firebase_options.dart';
 import 'ui/screens/home_screen.dart';
 import 'ui/screens/login_screen.dart';
@@ -45,13 +48,24 @@ class _MainAppState extends State<MainApp> {
           title: 'Спутниковые снимки',
           debugShowCheckedModeBanner: false,
           theme: appTheme,
+          locale: const Locale('ru'),
+          supportedLocales: const [Locale('ru')],
+          localizationsDelegates: const [
+            GlobalMaterialLocalizations.delegate,
+            GlobalWidgetsLocalizations.delegate,
+            GlobalCupertinoLocalizations.delegate,
+          ],
           home: BlocBuilder<AuthBloc, AuthState>(
             builder: (context, state) => switch (state) {
               AuthInitial() => const Scaffold(
                 body: Center(child: CircularProgressIndicator()),
               ),
               AuthUnauthenticated() => const LoginScreen(),
-              AuthAuthenticated() => const HomeScreen(),
+              AuthAuthenticated(:final user) => BlocProvider(
+                key: ValueKey(user.uid),
+                create: (_) => RequestsBloc(RequestsRepository()),
+                child: const HomeScreen(),
+              ),
             },
           ),
         ),

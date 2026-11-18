@@ -1,34 +1,113 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import '../../bloc/account/account_bloc.dart';
+import '../../bloc/account/account_event.dart';
 import '../../bloc/auth/auth_bloc.dart';
 import '../../bloc/auth/auth_event.dart';
-import '../../bloc/auth/auth_state.dart';
+import '../../bloc/requests/requests_bloc.dart';
+import '../../bloc/requests/requests_state.dart';
+import '../../data/requests_repository.dart';
+import '../theme.dart';
+import '../widgets/archive_request_form.dart';
+import '../widgets/image_request_form.dart';
+import 'account_screen.dart';
 
-/// Временная заглушка. На этапе 3 здесь появится загрузка снимка.
-class HomeScreen extends StatelessWidget {
+class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    final state = context.watch<AuthBloc>().state;
-    final nickname = state is AuthAuthenticated ? state.user.nickname : '';
+  State<HomeScreen> createState() => _HomeScreenState();
+}
 
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Спутниковые снимки'),
-        actions: [
-          TextButton(
-            onPressed: () =>
-                context.read<AuthBloc>().add(AuthSignOutRequested()),
-            child: const Text('Выйти'),
-          ),
-        ],
+class _HomeScreenState extends State<HomeScreen> {
+  RequestKind _mode = RequestKind.image;
+
+  void _openAccount() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => BlocProvider(
+          create: (_) => AccountBloc(RequestsRepository())..add(AccountStarted()),
+          child: const AccountScreen(),
+        ),
       ),
-      body: Center(
-        child: Text(
-          nickname.isEmpty ? 'Вы вошли' : 'Вы вошли как $nickname',
-          style: const TextStyle(fontSize: 20),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocListener<RequestsBloc, RequestsState>(
+      listenWhen: (previous, current) =>
+          current.notice != null && previous.notice != current.notice,
+      listener: (context, state) {
+        ScaffoldMessenger.of(context)
+          ..hideCurrentSnackBar()
+          ..showSnackBar(SnackBar(content: Text(state.notice!.message)));
+      },
+      child: Scaffold(
+        appBar: AppBar(
+          title: const Text('Спутниковые снимки'),
+          actions: [
+            IconButton(
+              tooltip: 'Аккаунт',
+              icon: const Icon(Icons.account_circle_outlined),
+              onPressed: _openAccount,
+            ),
+            TextButton(
+              onPressed: () =>
+                  context.read<AuthBloc>().add(AuthSignOutRequested()),
+              child: const Text('Выйти'),
+            ),
+          ],
+        ),
+        body: SafeArea(
+          child: Align(
+            alignment: Alignment.topCenter,
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.all(16),
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(maxWidth: 640),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    SegmentedButton<RequestKind>(
+                      showSelectedIcon: false,
+                      expandedInsets: EdgeInsets.zero,
+                      style: SegmentedButton.styleFrom(
+                        backgroundColor: Colors.white,
+                        foregroundColor: kText,
+                        selectedBackgroundColor: kAccent,
+                        selectedForegroundColor: Colors.white,
+                        side: const BorderSide(color: kBorder),
+                      ),
+                      segments: const [
+                        ButtonSegment(
+                          value: RequestKind.image,
+                          label: Text('Загрузка снимка'),
+                        ),
+                        ButtonSegment(
+                          value: RequestKind.archive,
+                          label: Text('Открытые базы'),
+                        ),
+                      ],
+                      selected: {_mode},
+                      onSelectionChanged: (s) =>
+                          setState(() => _mode = s.first),
+                    ),
+                    const SizedBox(height: 20),
+                    IndexedStack(
+                      index: _mode == RequestKind.image ? 0 : 1,
+                      children: const [
+                        ImageRequestForm(),
+                        ArchiveRequestForm(),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
         ),
       ),
     );
