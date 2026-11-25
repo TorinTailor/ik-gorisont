@@ -45,7 +45,7 @@ class _MainAppState extends State<MainApp> {
       child: BlocProvider.value(
         value: _authBloc,
         child: MaterialApp(
-          title: 'Спутниковые снимки',
+          title: 'ИК-Горизонт',
           debugShowCheckedModeBanner: false,
           theme: appTheme,
           locale: const Locale('ru'),

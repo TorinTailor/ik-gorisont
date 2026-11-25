@@ -9,6 +9,7 @@ import '../../bloc/requests/requests_bloc.dart';
 import '../../bloc/requests/requests_state.dart';
 import '../../data/requests_repository.dart';
 import '../theme.dart';
+import '../widgets/app_drawer.dart';
 import '../widgets/archive_request_form.dart';
 import '../widgets/image_request_form.dart';
 import 'account_screen.dart';
@@ -46,8 +47,9 @@ class _HomeScreenState extends State<HomeScreen> {
           ..showSnackBar(SnackBar(content: Text(state.notice!.message)));
       },
       child: Scaffold(
+        drawer: const AppDrawer(),
         appBar: AppBar(
-          title: const Text('Спутниковые снимки'),
+          title: const Text('ИК-Горизонт'),
           actions: [
             IconButton(
               tooltip: 'Аккаунт',

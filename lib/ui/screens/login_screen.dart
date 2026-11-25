@@ -4,6 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../bloc/auth/auth_bloc.dart';
 import '../../bloc/auth/auth_event.dart';
 import '../../bloc/auth/auth_state.dart';
+import '../widgets/app_logo.dart';
 import '../widgets/error_banner.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -75,6 +76,27 @@ class _LoginScreenState extends State<LoginScreen> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
+                        const Center(child: AppLogo(size: 110)),
+                        const SizedBox(height: 12),
+                        const Text(
+                          'ИК-Горизонт',
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            fontSize: 28,
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
+                        const SizedBox(height: 4),
+                        const Text(
+                          'Платформа мониторинга чрезвычайных ситуаций '
+                          'на основе открытых космических данных',
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            fontSize: 14,
+                            color: Color(0xFF5F5F5F),
+                          ),
+                        ),
+                        const SizedBox(height: 28),
                         Text(
                           _isLogin ? 'Вход' : 'Регистрация',
                           style: const TextStyle(
