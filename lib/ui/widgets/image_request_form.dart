@@ -140,7 +140,7 @@ class _ImageRequestFormState extends State<ImageRequestForm> {
                   child: Image.memory(
                     _bytes!,
                     fit: BoxFit.contain,
-                    errorBuilder: (_, __, ___) => const Center(
+                    errorBuilder: (_, _, _) => const Center(
                       child: Text(
                         'Предпросмотр для этого формата недоступен',
                         style: _hintStyle,
